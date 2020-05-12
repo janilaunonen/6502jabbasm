@@ -70,6 +70,52 @@ public:
 	};
 };
 
+class Comment : public Token
+{
+public:
+	friend std::istringstream &operator>> (std::istringstream &input, Comment &comment) {
+		const auto start_pos = input.tellg();
+		std::string temp_string;
+		intut >> temp_string;
+		if (temp_string.front() == ';') {
+			while (input >> temp_string) {
+				std::string accumulated_string;
+				
+
+class Params : public Token
+{
+public:
+	friend std::istringstream &operator>> (std::istringstream &input, Params &params) {
+		const auto start_pos = input.tellg();
+		bool reset_stream = true;
+		std::string temp_string;
+		input >> temp_string;
+		switch (temp_string.front()) {
+		case ';' : // it's a comment
+			break;
+		case '#' : // it's a immediate 
+			//TODO: parse immediate value or label and return reset_stream = <true|false> whether parse succeeded
+			break;
+		case '(' : // it's an indirect addressing mode
+			//TODO: parse indirect addressing modes
+			break;
+		case '$' : // it's a absolute addressing mode
+			//TODO: parse absolute addressing modes
+			break;
+		case '-' : // it's a relative branch backwards. Note label could result in offset in Bxx
+			//TODO: parse relative branch as offset
+			break;
+		case '+' : // it's a relative branch forward
+			//TODO: parse relative branch as offset. Note label could result in offset in Bxx
+			break;
+		default : // could be Accumulator, absolute (with decimal number or label)
+		}
+		if (reset_stream) {
+			input.seekg(start_pos);
+		}
+		return input;
+	}
+};
 
 int main(const int argc, const char *const argv[])
 {
