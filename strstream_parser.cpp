@@ -76,11 +76,14 @@ public:
 	friend std::istringstream &operator>> (std::istringstream &input, Comment &comment) {
 		const auto start_pos = input.tellg();
 		std::string temp_string;
-		intut >> temp_string;
+		std::getline(input >> std::ws, temp_string);	// trims whitespace from beginning, but not the end. TODO.
 		if (temp_string.front() == ';') {
-			while (input >> temp_string) {
-				std::string accumulated_string;
-				
+			comment.setText(temp_string.trim());
+		} else {
+			std::cerr << "Malformed comment field: '" << temp_string << "'" << std::endl;
+		}
+	};
+};
 
 class Params : public Token
 {
@@ -141,11 +144,13 @@ int main(const int argc, const char *const argv[])
 	while (std::getline(file, line)) {
 		Label label;
 		Mnemonic mnemonic;
+		Params params;
+		Comment comment;
 		std::string rest;
 		std::istringstream streamline(line);
 		if (streamline) {
 			linenumber++;
-			streamline >> label >> mnemonic; // TODO >> rest;
+			streamline >> label >> mnemonic >> params >> comment;
 			if (label) {
 				std::cout << "Label found: '" << label << "'" << std::endl;
 			}
