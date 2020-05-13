@@ -78,11 +78,17 @@ public:
 		std::string temp_string;
 		std::getline(input >> std::ws, temp_string);	// trims whitespace from beginning, but not the end. TODO.
 		if (temp_string.front() == ';') {
-			comment.setText(temp_string.trim());
-		} else {
+			comment.setText(temp_string);
+		} else if (!temp_string.empty()) {
 			std::cerr << "Malformed comment field: '" << temp_string << "'" << std::endl;
 		}
+		return input;
 	};
+	friend std::ostream& operator<< (std::ostream& output, Comment &comment) {
+                output << "[at address] " << comment.text();
+                return output;
+        };
+
 };
 
 class Params : public Token
@@ -98,26 +104,42 @@ public:
 			break;
 		case '#' : // it's a immediate 
 			//TODO: parse immediate value or label and return reset_stream = <true|false> whether parse succeeded
+			params.setText(temp_string);
+			reset_stream = false;
 			break;
 		case '(' : // it's an indirect addressing mode
 			//TODO: parse indirect addressing modes
+			params.setText(temp_string);
+                        reset_stream = false;
 			break;
 		case '$' : // it's a absolute addressing mode
 			//TODO: parse absolute addressing modes
+			params.setText(temp_string);
+                        reset_stream = false;
 			break;
 		case '-' : // it's a relative branch backwards. Note label could result in offset in Bxx
 			//TODO: parse relative branch as offset
+			params.setText(temp_string);
+                        reset_stream = false;
 			break;
 		case '+' : // it's a relative branch forward
 			//TODO: parse relative branch as offset. Note label could result in offset in Bxx
+			params.setText(temp_string);
+                        reset_stream = false;
 			break;
 		default : // could be Accumulator, absolute (with decimal number or label)
+			break;
 		}
 		if (reset_stream) {
 			input.seekg(start_pos);
 		}
 		return input;
-	}
+	};
+        friend std::ostream& operator<< (std::ostream& output, Params &params) {
+                output << "[at address] " << params.text();
+                return output;
+        };
+
 };
 
 int main(const int argc, const char *const argv[])
@@ -146,7 +168,6 @@ int main(const int argc, const char *const argv[])
 		Mnemonic mnemonic;
 		Params params;
 		Comment comment;
-		std::string rest;
 		std::istringstream streamline(line);
 		if (streamline) {
 			linenumber++;
@@ -157,11 +178,12 @@ int main(const int argc, const char *const argv[])
 			if (mnemonic) {
 				std::cout << "Mnemonic found: '" << mnemonic << "'" << std::endl;
 			}
-			std::cout << "The rest: '";
-			while ((streamline >> rest) && (!rest.empty())) {
-				std::cout << rest << std::endl;
+			if (params) {
+				std::cout << "Params found: '" << params << "'" << std::endl;
 			}
-			std::cout << "'" << std::endl;
+			if (comment) {
+				std::cout << "Comment found: '" << comment << "'" << std::endl;
+			}
 		}
 	}
 	return 0;
