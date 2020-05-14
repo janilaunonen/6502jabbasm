@@ -99,10 +99,16 @@ public:
 		bool reset_stream = true;
 		std::string temp_string;
 		input >> temp_string;
+		
+		if (temp_string.empty()) {
+			input.seekg(start_pos);
+			return input;
+		}
+
 		switch (temp_string.front()) {
 		case ';' : // it's a comment
 			break;
-		case '#' : // it's a immediate 
+		case '#' : // it's a immediate
 			//TODO: parse immediate value or label and return reset_stream = <true|false> whether parse succeeded
 			params.setText(temp_string);
 			reset_stream = false;
@@ -127,7 +133,9 @@ public:
 			params.setText(temp_string);
                         reset_stream = false;
 			break;
-		default : // could be Accumulator, absolute (with decimal number or label)
+		default : // could be Accumulator, absolute (with decimal number or label + offset)
+			params.setText(temp_string);
+                        reset_stream = false;
 			break;
 		}
 		if (reset_stream) {
